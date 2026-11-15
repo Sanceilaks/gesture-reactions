@@ -8,6 +8,7 @@ Fixes since 2026-11-09:
 - A gesture shown just before you fired a reaction with the 1-8 keys no longer fires again the moment that effect ends. Hold the gesture afresh to trigger it.
 - Pressing the same reaction key again while its effect is playing no longer stacks another copy (five stacked fireworks dropped 720p video below 30 fps). A different reaction can still start.
 - With no internet on the first run, the app now says it could not download the hand model and where to save it by hand, instead of opening the camera and then crashing with a traceback.
+- `--hold`, `--cooldown`, `--fps`, `--width` and `--height` refuse `nan` and `inf`. `--cooldown nan` used to switch the cooldown off, so a held gesture fired every 0.4 s.
 
 ## 2026-11-09
 

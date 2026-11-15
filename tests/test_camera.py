@@ -208,7 +208,8 @@ def test_failed_model_download_explains_what_to_do(tmp_path, monkeypatch):
 
 def test_args_reject_nonsense_values():
     assert parse_args(["--hold", "0.3"]).hold == 0.3
-    for bad in (["--hold", "0"], ["--cooldown", "-1"], ["--fps", "0"], ["--no-virtual-cam", "--no-preview"]):
+    for bad in (["--hold", "0"], ["--cooldown", "-1"], ["--fps", "0"], ["--no-virtual-cam", "--no-preview"],
+                ["--cooldown", "nan"], ["--hold", "inf"], ["--hold", "-inf"]):
         with pytest.raises(SystemExit):
             parse_args(bad)
     # still fine: WhatsApp mode has its own output window

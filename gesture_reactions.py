@@ -24,6 +24,7 @@ Keys in the preview window:
 from __future__ import annotations
 
 import argparse
+import math
 import os
 import sys
 import time
@@ -265,10 +266,13 @@ def draw_landmarks(frame, hands):
 
 
 def positive(kind):
-    """argparse type: a number above zero (a zero or negative hold, cooldown or size makes no sense)."""
+    """argparse type: a finite number above zero (a zero or negative hold, cooldown or size makes no
+    sense). "nan" and "inf" parse as floats but used to get through: --cooldown nan made every
+    comparison false, so a held gesture fired again every 0.4 s with no cooldown at all, and
+    --hold inf never fired."""
     def parse(text):
         value = kind(text)
-        if value <= 0:
+        if not math.isfinite(value) or value <= 0:
             raise argparse.ArgumentTypeError(f"must be above 0, got {text}")
         return value
     return parse
