@@ -13,6 +13,7 @@ captures and passes on as "DroidCam Video" (see README.md).
     python gesture_reactions.py --no-virtual-cam   # preview window only
     python gesture_reactions.py --whatsapp    # clean output window for OBS + DroidCam
     python gesture_reactions.py --list-cameras     # which camera index is which
+    python gesture_reactions.py --virtual-device 2 # Linux: send to /dev/video2 (v4l2loopback)
 
 Keys in the preview window:
     1-8   fire a reaction by hand (see REACTION_KEYS)
@@ -278,6 +279,17 @@ def positive(kind):
     return parse
 
 
+def virtual_device(text: str | None) -> str | None:
+    """Which virtual camera pyvirtualcam should write to. None lets pyvirtualcam pick (on Linux the
+    first free v4l2loopback device, which is not always the one you want). On Linux a bare number N
+    means /dev/videoN; anything else (a path, or a device name on Windows/macOS) is passed as is."""
+    if text is None or text == "":
+        return None
+    if text.isdigit() and sys.platform.startswith("linux"):
+        return f"/dev/video{text}"
+    return text
+
+
 def parse_args(argv=None):
     ap = argparse.ArgumentParser(description="macOS-style gesture reactions for any video call app.")
     ap.add_argument("--camera", default="0", help="webcam index (0, 1, ...) or a video file path")
@@ -289,6 +301,9 @@ def parse_args(argv=None):
     ap.add_argument("--list-cameras", action="store_true",
                     help="show which camera indexes 0-5 work with each backend, then exit")
     ap.add_argument("--no-virtual-cam", action="store_true", help="only show the preview window")
+    ap.add_argument("--virtual-device", type=virtual_device, default=None, metavar="DEVICE",
+                    help="virtual camera to send to: on Linux an index N (= /dev/videoN) or a path such as "
+                         "/dev/video2; elsewhere a pyvirtualcam device name. Default: pyvirtualcam picks")
     ap.add_argument("--no-preview", action="store_true", help="don't open a preview window")
     ap.add_argument("--whatsapp", action="store_true",
                     help="skip the virtual camera and show an unmirrored output window for OBS to capture")
@@ -323,7 +338,7 @@ def main():
             import pyvirtualcam
 
             cam = pyvirtualcam.Camera(width=w, height=h, fps=args.fps,
-                                      fmt=pyvirtualcam.PixelFormat.BGR)
+                                      fmt=pyvirtualcam.PixelFormat.BGR, device=args.virtual_device)
             print(f"Virtual camera started: {cam.device}. Pick it as the camera in your call app.")
         except Exception as e:  # noqa: BLE001
             print(f"Virtual camera unavailable ({e}).\n"

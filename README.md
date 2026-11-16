@@ -177,6 +177,8 @@ python gesture_reactions.py [options]
   --backend auto    camera API: auto (Media Foundation, then DirectShow), msmf or dshow
   --list-cameras    show which camera numbers work and which give a black picture
   --whatsapp        output window for OBS + DroidCam instead of the virtual camera
+  --virtual-device 2  which virtual camera to send to; on Linux 2 means /dev/video2
+                      (default: pyvirtualcam picks the first free v4l2loopback device)
   --no-virtual-cam  preview only
   --no-preview      no preview window
 ```

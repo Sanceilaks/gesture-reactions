@@ -15,6 +15,7 @@ pytest.importorskip("cv2")
 
 from gesture_reactions import (  # noqa: E402
     backend_order, ensure_model, require_model, is_black, next_reaction, parse_args, read_frame, warm_up,
+    virtual_device,
 )
 from gestures import ReactionTrigger  # noqa: E402
 
@@ -214,6 +215,17 @@ def test_args_reject_nonsense_values():
             parse_args(bad)
     # still fine: WhatsApp mode has its own output window
     assert parse_args(["--whatsapp", "--no-preview"]).no_virtual_cam
+
+
+def test_virtual_device_option(monkeypatch):
+    assert parse_args([]).virtual_device is None
+    assert parse_args(["--virtual-device", "/dev/video2"]).virtual_device == "/dev/video2"
+    monkeypatch.setattr(sys, "platform", "linux")
+    assert virtual_device("2") == "/dev/video2"
+    assert parse_args(["--virtual-device", "2"]).virtual_device == "/dev/video2"
+    monkeypatch.setattr(sys, "platform", "win32")
+    assert virtual_device("2") == "2"
+    assert virtual_device("OBS Virtual Camera") == "OBS Virtual Camera"
 
 
 def test_gesture_shown_before_an_effect_needs_a_fresh_hold_after_it():
